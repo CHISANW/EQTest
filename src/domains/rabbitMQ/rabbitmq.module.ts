@@ -1,5 +1,5 @@
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { RabbitMQController } from './rabbitmq.controller';
 import { RabbitMQService } from './rabbitmq.service';
 import { Web3Module } from '../../providers/web3/web3.module';
@@ -8,7 +8,7 @@ import { BlockModule } from '../blockchain-transactions/block/block.module';
 @Module({
   imports: [
     Web3Module,
-    BlockModule,
+    forwardRef(() => BlockModule),
     RabbitMQModule.forRoot({
       exchanges: [
         {
@@ -28,5 +28,6 @@ import { BlockModule } from '../blockchain-transactions/block/block.module';
   ],
   providers: [RabbitMQService],
   controllers: [RabbitMQController],
+  exports: [RabbitMQService],
 })
 export class RabbitExModule {}

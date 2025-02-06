@@ -2,12 +2,15 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Web3Service } from '../../../providers/web3/web3.service';
 import { UserRepository } from '../../user/repositories/user.repository';
 import { format } from 'date-fns';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { RabbitMQService } from '../../rabbitMQ/rabbitmq.service';
 
 @Injectable()
 export class BlockService {
   constructor(
     private readonly web3Service: Web3Service,
     private readonly userRepository: UserRepository,
+    private readonly rabbitMQService: RabbitMQService,
   ) {}
 
   async generateRandomTransactions(): Promise<number> {
@@ -39,6 +42,10 @@ export class BlockService {
     console.log(
       `실행 시간 ${formattedTime}: , | 트랜잭션 완료 | 사용자 : ${userId} | 트랜잭션 함수 : ${promise}`,
     );
-    await this.sendCoin(userId + 1);
+    // set.push({ userId, transactionHash: promise });
+
+    this.rabbitMQService.publish(promise);
+
+    return this.sendCoin(userId + 1);
   }
 }

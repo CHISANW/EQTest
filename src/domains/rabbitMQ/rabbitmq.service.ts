@@ -1,22 +1,28 @@
 import { Injectable } from '@nestjs/common';
-import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
-import { Web3Service } from '../../providers/web3/web3.service';
+import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { EqHubService } from '../../providers/web3/eqbr.service';
 
 @Injectable()
 export class RabbitMQService {
-  constructor(private readonly eqHubService: EqHubService) {}
+  constructor(
+    private readonly eqHubService: EqHubService,
+    private readonly amqpConnection: AmqpConnection,
+  ) {}
 
-  // @RabbitSubscribe({
-  //   exchange: 'test',
-  //   routingKey: 'test-rt',
-  //   queue: 'test',
-  // })
-  // public async publicHandler(msg: any) {
-  //   const { image } = msg;
-  //   const publish = await this.eqHubService.getTransactionReceipt(image);
-  //   if (publish.data.receipt.status) {
-  //     console.log('트랜잭션 폴링 완료!');
-  //   }
-  // }
+  @RabbitSubscribe({
+    exchange: 'test',
+    routingKey: 'test-rt',
+    queue: 'test',
+  })
+  public async publicHandler(msg: any) {
+    const { image } = msg;
+    const newVar = await this.eqHubService.getTransactionReceipt(image);
+    console.log('폴링 = ', newVar.data.receipt.status);
+  }
+
+  async publish(txHash: string) {
+    this.amqpConnection.publish('test', 'test-rt', {
+      image: txHash,
+    });
+  }
 }
