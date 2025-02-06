@@ -14,13 +14,12 @@ export class RabbitMQService {
     routingKey: 'test-rt',
     queue: 'test',
   })
-  public async publicHandler(msg: any) {
+  public publicHandler(msg: any) {
     const { image } = msg;
-    const newVar = await this.eqHubService.getTransactionReceipt(image);
-    console.log('폴링 = ', newVar.data.receipt.status);
+    this.eqHubService.getTransactionReceipt(image);
   }
 
-  async publish(txHash: string) {
+  publish(txHash: string) {
     this.amqpConnection.publish('test', 'test-rt', {
       image: txHash,
     });

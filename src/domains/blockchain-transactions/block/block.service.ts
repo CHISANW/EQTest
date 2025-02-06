@@ -13,15 +13,15 @@ export class BlockService {
     private readonly rabbitMQService: RabbitMQService,
   ) {}
 
-  async generateRandomTransactions(): Promise<number> {
+  async generateRandomTransactions() {
     const txCount = Math.floor(Math.random() * 10) + 1; // 1~10개의 랜덤 함수 생성
-    console.log('시도 횟수', txCount);
+    const formattedTime = format(new Date(), 'yyyy-MM-dd HH:mm');
+    console.log(`최초 실행 일 : ${formattedTime} ,총 실행 횟수`);
+
     for (let i = 1; i <= txCount; i++) {
-      console.log('---------------------------------------------------- ');
+      // console.log('---------------------------------------------------- ');
       await this.sendCoin(1);
     }
-
-    return txCount;
   }
 
   async sendCoin(userId: number): Promise<any> {
@@ -31,21 +31,28 @@ export class BlockService {
     const from = await this.userRepository.findById(userId);
     const to = await this.userRepository.findById(amount);
 
-    console.log('       =================================    ');
-    const promise = await this.web3Service.transaction(
-      from?.address,
-      from?.private_key,
-      to?.address,
-    );
+    // console.log('       =================================    ');
+    this.web3Service
+      .transaction(from?.address, from?.private_key, to?.address)
+      .then(async (transaction) => {
+        const formattedTime = format(new Date(), 'yyyy-MM-dd HH:mm');
+        this.rabbitMQService.publish(transaction);
 
-    const formattedTime = format(new Date(), 'yyyy-MM-dd HH:mm');
-    console.log(
-      `실행 시간 ${formattedTime}: , | 트랜잭션 완료 | 사용자 : ${userId} | 트랜잭션 함수 : ${promise}`,
-    );
-    // set.push({ userId, transactionHash: promise });
-
-    this.rabbitMQService.publish(promise);
-
-    return this.sendCoin(userId + 1);
+        console.log(`
+  ========================================================================================
+  |           Transaction triggered                                                      |
+  ========================================================================================
+  | Run Time        : ${formattedTime}                                                   |
+  | User            : ${userId}                                                  |
+  | Amount Sent     : ${amount}                                                  |
+  | Transaction Hash: ${transaction} |
+  ========================================================================================
+`);
+        return transaction; // 반환값은 transaction으로 처리
+      })
+      .catch((reason) => {})
+      .finally(async () => {
+        return this.sendCoin(userId + 1); // 후속 작업 실행
+      });
   }
 }

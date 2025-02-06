@@ -33,7 +33,6 @@ export class Web3Service {
   public async transaction(fromAddress, privateKey, toAddresss): Promise<any> {
     const tx = await this.createTransaction(fromAddress, toAddresss);
 
-    // 병렬 실행 (서명과 전송을 동시에 처리)
     const signedTxPromise = this.signTransaction(tx, privateKey);
     const signedTx = await signedTxPromise;
 

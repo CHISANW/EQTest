@@ -24,7 +24,7 @@ export class EqHubService {
       if (axiosResponse.data.receipt.status === false && first) {
         throw new Error('오류 발생');
       }
-      console.log('통과해여 반환 해야함');
+      // console.log('통과해여 반환 해야함');
       return axiosResponse;
     } catch (error) {
       // 재시도 할 횟수가 남아있으면 재시도
