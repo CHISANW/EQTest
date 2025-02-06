@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Web3 } from 'web3';
 import { UserService } from '../../domains/user/user.service';
 import { EqHubService } from './eqbr.service';
 
@@ -10,10 +9,6 @@ export class Web3Service {
     private readonly userService: UserService,
     private readonly eqbrService: EqHubService,
   ) {}
-
-  getWeb3(): Web3 {
-    return this.web3;
-  }
 
   async createAccounts() {
     const accountList: any[] = [];
@@ -35,19 +30,15 @@ export class Web3Service {
     console.log(restoredAddress);
   }
 
-  public async transaction(): Promise<void> {
-    const receiverAddress = '0xAa0fd71E5c8D3f91705C4474A71551a140368137'; // 수신자 주소
-    const account = this.web3.eth.accounts.create(); // 새 계정 생성
-    const tx = await this.createTransaction(account.address, receiverAddress);
-    const signedTx = await this.signTransaction(tx, account.privateKey);
-    const transaction = await this.sendTransaction(signedTx);
-    console.info('끝');
-    return transaction.transactionHash;
-    // const axiosResponse = await this.eqbrService.getTransactionReceipt(transaction.transactionHash);
-    // console.log(axiosResponse.data.receipt);
-  }
+  public async transaction(fromAddress, privateKey, toAddresss): Promise<any> {
+    const tx = await this.createTransaction(fromAddress, toAddresss);
 
-  public async polling(transactionHash: string): Promise<any> {}
+    // 병렬 실행 (서명과 전송을 동시에 처리)
+    const signedTxPromise = this.signTransaction(tx, privateKey);
+    const signedTx = await signedTxPromise;
+
+    return (await this.sendTransaction(signedTx)).transactionHash;
+  }
 
   private async createTransaction(
     senderAddress: string,
@@ -62,7 +53,7 @@ export class Web3Service {
       to: receiverAddress,
       value: this.web3.utils.toWei('0', 'ether'), // 0이더 전송
       gas: 21000,
-      gasPrice: this.web3.utils.toWei('20', 'gwei'),
+      gasPrice: this.web3.utils.toWei('10', 'gwei'),
       nonce: nonce,
     };
   }
@@ -71,11 +62,7 @@ export class Web3Service {
     txObject: any,
     privateKey: string,
   ): Promise<any> {
-    const signTransaction = await this.web3.eth.accounts.signTransaction(
-      txObject,
-      privateKey,
-    );
-    return signTransaction;
+    return await this.web3.eth.accounts.signTransaction(txObject, privateKey);
   }
 
   private async sendTransaction(signedTx: any): Promise<any> {

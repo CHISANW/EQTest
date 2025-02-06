@@ -17,4 +17,16 @@ export class UserRepository {
     }
     return this.userRepository.save(user);
   }
+
+  async findById(userId: number, transaction?: EntityManager) {
+    if (transaction) {
+      return transaction
+        .getRepository(User)
+        .findOne({ where: { user_id: userId } });
+    }
+
+    return await this.userRepository.findOne({
+      where: { user_id: userId },
+    });
+  }
 }

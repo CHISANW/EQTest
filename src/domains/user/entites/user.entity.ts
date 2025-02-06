@@ -4,6 +4,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class User {
@@ -24,12 +25,15 @@ export class User {
   })
   created_at: Date;
 
-  constructor(address: string, private_key: string) {
+  constructor(address: string, private_key?: string) {
+    // private_key는 선택적 파라미터
     this.address = address;
-    this.private_key = private_key;
+    if (private_key) {
+      this.private_key = private_key;
+    }
   }
 
-  static of(address: string, private_key: string) {
+  static of(address: string, private_key?: string) {
     return new User(address, private_key);
   }
 }

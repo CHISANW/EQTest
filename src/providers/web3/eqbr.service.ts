@@ -21,7 +21,7 @@ export class EqHubService {
         },
       });
 
-      if (axiosResponse.data.receipt.status === true && first) {
+      if (axiosResponse.data.receipt.status === false && first) {
         throw new Error('오류 발생');
       }
       console.log('통과해여 반환 해야함');

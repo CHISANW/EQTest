@@ -7,7 +7,7 @@ export const MYSQL = {
     ...Config.getEnvironment().DB_1,
     entities: { User },
     synchronize: true,
-    logging: true,
+    logging: false,
     timezone: 'Asia/Seoul',
   },
 };

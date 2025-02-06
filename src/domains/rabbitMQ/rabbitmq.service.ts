@@ -7,16 +7,16 @@ import { EqHubService } from '../../providers/web3/eqbr.service';
 export class RabbitMQService {
   constructor(private readonly eqHubService: EqHubService) {}
 
-  @RabbitSubscribe({
-    exchange: 'test',
-    routingKey: 'test-rt',
-    queue: 'test',
-  })
-  public async publicHandler(msg: any) {
-    const { image } = msg;
-    const publish = await this.eqHubService.getTransactionReceipt(image);
-    if (publish.data.receipt.status) {
-      console.log('트랜잭션 폴링 완료!');
-    }
-  }
+  // @RabbitSubscribe({
+  //   exchange: 'test',
+  //   routingKey: 'test-rt',
+  //   queue: 'test',
+  // })
+  // public async publicHandler(msg: any) {
+  //   const { image } = msg;
+  //   const publish = await this.eqHubService.getTransactionReceipt(image);
+  //   if (publish.data.receipt.status) {
+  //     console.log('트랜잭션 폴링 완료!');
+  //   }
+  // }
 }

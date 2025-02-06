@@ -21,11 +21,11 @@ export class TestController {
   }
 
   // @Cron('0 */2 * * * *')
-  @Post('/b')
-  aaaa() {
-    console.log('발생', new Date().getUTCMinutes());
-    this.web3Service.transaction();
-  }
+  // @Post('/b')
+  // aaaa() {
+  //   console.log('발생', new Date().getUTCMinutes());
+  //   this.web3Service.transaction();
+  // }
 
   @Get('/c')
   cccc() {}
