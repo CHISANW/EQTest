@@ -57,7 +57,6 @@ export class Web3Service {
       senderAddress,
       'latest',
     );
-    console.log('토큰 생성');
     return {
       from: senderAddress,
       to: receiverAddress,
@@ -76,7 +75,6 @@ export class Web3Service {
       txObject,
       privateKey,
     );
-    console.log('토큰 서명', signTransaction);
     return signTransaction;
   }
 
@@ -84,10 +82,6 @@ export class Web3Service {
     if (!signedTx.rawTransaction) {
       throw new Error('No rawTransaction found in signedTx.');
     }
-    const receipt = await this.web3.eth.sendSignedTransaction(
-      signedTx.rawTransaction,
-    );
-    console.log('숏 폴링', receipt);
-    return receipt;
+    return this.web3.eth.sendSignedTransaction(signedTx.rawTransaction);
   }
 }

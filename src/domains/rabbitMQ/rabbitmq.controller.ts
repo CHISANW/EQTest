@@ -12,7 +12,7 @@ export class RabbitMQController {
   @Get()
   async rabbit() {
     const promise = await this.web3Service.transaction();
-    const b = await this.amqpConnection.publish('test', 'test-routing', {
+    const b = await this.amqpConnection.publish('test', 'test-rt', {
       image: promise,
     });
     return 'ok';

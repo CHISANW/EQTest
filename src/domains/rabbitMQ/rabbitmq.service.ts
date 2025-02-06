@@ -9,11 +9,14 @@ export class RabbitMQService {
 
   @RabbitSubscribe({
     exchange: 'test',
-    routingKey: 'test-routing',
-    queue: 'test-queue',
+    routingKey: 'test-rt',
+    queue: 'test',
   })
   public async publicHandler(msg: any) {
-    await this.eqHubService.getTransactionReceipt(msg);
-    console.log(`메시지 수신 : ,${JSON.stringify(msg)}`);
+    const { image } = msg;
+    const publish = await this.eqHubService.getTransactionReceipt(image);
+    if (publish.data.receipt.status) {
+      console.log('트랜잭션 폴링 완료!');
+    }
   }
 }
