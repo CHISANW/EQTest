@@ -1,9 +1,21 @@
 import { Module } from '@nestjs/common';
-import { AppService } from './app.service';
+import { UserModule } from './domains/user/user.module';
+import { MysqlModule } from './providers/mysql/mysql.module';
+import { Web3Module } from './providers/web3/web3.module';
+import { TestModule } from './domains/test/test.module';
+import { BlockModule } from './domains/blockchain-transactions/block/block.module';
+import { RabbitExModule } from './domains/rabbitMQ/rabbitmq.module';
 
 @Module({
-  imports: [],
+  imports: [
+    UserModule,
+    MysqlModule,
+    Web3Module,
+    TestModule,
+    BlockModule,
+    RabbitExModule,
+  ],
   controllers: [],
-  providers: [AppService],
+  providers: [],
 })
 export class AppModule {}

@@ -1,0 +1,30 @@
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { Module } from '@nestjs/common';
+import { RabbitMQController } from './rabbitmq.controller';
+import { RabbitMQService } from './rabbitmq.service';
+import { Web3Module } from '../../providers/web3/web3.module';
+
+@Module({
+  imports: [
+    Web3Module,
+    RabbitMQModule.forRoot({
+      exchanges: [
+        {
+          name: 'test',
+          type: 'topic',
+        },
+      ],
+      uri: 'amqp://guest:guest@localhost:5672',
+      connectionInitOptions: { wait: false },
+      channels: {
+        'channel-1': {
+          prefetchCount: 15,
+          default: true,
+        },
+      },
+    }),
+  ],
+  providers: [RabbitMQService],
+  controllers: [RabbitMQController],
+})
+export class RabbitExModule {}
