@@ -11,14 +11,4 @@ export class BlockController {
   random() {
     this.blockService.generateRandomTransactions();
   }
-
-  @Post('test')
-  test() {
-    this.blockService.test();
-  }
-
-  @Post('test1')
-  test1() {
-    this.blockService.test1();
-  }
 }

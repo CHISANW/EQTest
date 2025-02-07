@@ -18,15 +18,11 @@ export class UserRepository {
     return this.userRepository.save(user);
   }
 
-  async findById(userId: number, transaction?: EntityManager) {
-    if (transaction) {
-      return transaction
-        .getRepository(User)
-        .findOne({ where: { user_id: userId } });
-    }
-
-    return await this.userRepository.findOne({
-      where: { user_id: userId },
-    });
+  async findById(userId: number, transaction?: EntityManager): Promise<User> {
+    return transaction
+      ? await transaction
+          .getRepository(User)
+          .findOneOrFail({ where: { user_id: userId } })
+      : await this.userRepository.findOneOrFail({ where: { user_id: userId } });
   }
 }

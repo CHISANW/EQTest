@@ -36,7 +36,7 @@ export class RabbitMQService {
   }
 
   async tokenPublish(txHash: string) {
-    const b = await this.amqpConnection.publish('test', 'test-rt1', {
+    await this.amqpConnection.publish('test', 'test-rt1', {
       txHash: txHash,
     });
   }

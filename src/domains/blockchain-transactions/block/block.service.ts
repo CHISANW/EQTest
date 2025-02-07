@@ -25,44 +25,49 @@ export class BlockService {
     let index = 0;
     for (let i = 1; i <= txCount; i++) {
       console.log('*******************************');
-      index = await this.sendCoin(1, index);
-      console.log('*******************************');
+      const user = await this.findUsers(1);
+
+      const [newIndex] = await Promise.all([
+        this.sendCoin(user, index),
+        this.sendToken(),
+      ]);
+
+      index = newIndex; // index 값 업데이트
     }
   }
 
-  async sendCoin(userId: number, index: number): Promise<any> {
-    const amount = userId === 10 ? 1 : userId + 1;
+  async sendToken(): Promise<void> {
+    await this.tokenService.sendToken(0);
+  }
 
-    if (userId > 10) {
+  async findUsers(userId: number): Promise<{ from: User; to: User }> {
+    const amount = userId === 10 ? 1 : userId + 1;
+    const from = await this.userRepository.findById(userId);
+    const to = await this.userRepository.findById(amount);
+    return { from, to }; // 객체 형태로 반환
+  }
+
+  async sendCoin(
+    user: { from: User; to: User },
+    index: number,
+  ): Promise<number> {
+    const amount = user.from.user_id === 10 ? 1 : user.from.user_id + 1;
+    if (user.from.user_id > 10) {
       return index;
     }
 
-    const from = await this.userRepository.findById(userId);
-    const to = await this.userRepository.findById(amount);
-
-    // await this.send(<User>from, <User>to, index);
-    const newVar = await this.tokenService.sendToken(from?.meta_address);
-    await this.tokenPublish(newVar);
-
-    return this.sendCoin(userId + 1, ++index);
-  }
-
-  private async tokenPublish(newVar: string): Promise<any> {
-    await this.rabbitMQService.tokenPublish(newVar);
-  }
-
-  async test() {
-    await this.tokenService.fillAmount();
-  }
-
-  async test1() {
-    await this.tokenService.sendToken(
-      '0x3CBD86D2a29353De9864C7B9ca144BbA211B7937',
+    await this.send(user.from, user.to, index);
+    return this.sendCoin(
+      {
+        from: user.to,
+        to: await this.userRepository.findById(amount),
+      },
+      index + 1,
     );
   }
 
   private async send(from: User, to: User, index: number) {
-    await this.web3Service
+    return await this.web3Service
       .transaction(from?.address, from?.private_key, to?.address)
       .then(async (transaction) => {
         const formattedTime = format(new Date(), 'yyyy-MM-dd HH:mm');
@@ -78,7 +83,6 @@ export class BlockService {
   ========================================================================================
 `);
         return transaction; // 반환값은 transaction으로 처리
-      })
-      .catch((reason) => {});
+      });
   }
 }
