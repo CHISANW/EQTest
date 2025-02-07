@@ -17,6 +17,9 @@ export class User {
   @Column({ nullable: true })
   private_key: string;
 
+  @Column({ nullable: true })
+  meta_address: string;
+
   @CreateDateColumn({
     nullable: false,
     type: 'datetime',

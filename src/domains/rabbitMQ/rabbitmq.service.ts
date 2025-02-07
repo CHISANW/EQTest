@@ -14,14 +14,30 @@ export class RabbitMQService {
     routingKey: 'test-rt',
     queue: 'test',
   })
-  public publicHandler(msg: any) {
+  public async publicHandler(msg: any) {
     const { image } = msg;
-    this.eqHubService.getTransactionReceipt(image);
+    await this.eqHubService.getTransactionReceipt(image);
+  }
+
+  @RabbitSubscribe({
+    exchange: 'test',
+    routingKey: 'test-rt1',
+    queue: 'test',
+  })
+  public async publicTokenHandler(msg: any) {
+    const { txHash } = msg;
+    await this.eqHubService.getTransactionReceipt(txHash);
   }
 
   publish(txHash: string) {
     this.amqpConnection.publish('test', 'test-rt', {
       image: txHash,
+    });
+  }
+
+  async tokenPublish(txHash: string) {
+    const b = await this.amqpConnection.publish('test', 'test-rt1', {
+      txHash: txHash,
     });
   }
 }

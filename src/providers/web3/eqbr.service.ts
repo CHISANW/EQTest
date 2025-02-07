@@ -8,8 +8,9 @@ export class EqHubService {
 
   async getTransactionReceipt(
     txHash: string,
+    success: number = 0,
     retries: number = 3, // 재시도 횟수
-    delay: number = 5000, // 재시도 간격 (5초)
+    delay: number = 10000, // 재시도 간격 (10초)
     first: boolean = true,
   ): Promise<any> {
     const getTransactionReceiptUrl = `/v2/request/transaction/${txHash}/receipt?microChainId=43161`;
@@ -21,12 +22,15 @@ export class EqHubService {
         },
       });
 
-      if (axiosResponse.data.receipt.status === false && first) {
-        throw new Error('오류 발생');
-      }
-      // console.log('통과해여 반환 해야함');
+      console.log(axiosResponse.data);
+      // if (axiosResponse.data.receipt.status === false && first) {
+      //   throw new Error('오류 발생');
+      // }
+      success += 1;
+      console.log(`폴링 성공 ${success}`);
       return axiosResponse;
     } catch (error) {
+      // console.error(error);
       // 재시도 할 횟수가 남아있으면 재시도
       if (retries > 0) {
         console.log(`10초 후에 재시도... (${retries}번 남음)`);
@@ -34,6 +38,7 @@ export class EqHubService {
         await new Promise((resolve) => setTimeout(resolve, delay));
         return await this.getTransactionReceipt(
           txHash,
+          success,
           retries - 1,
           delay,
           false,

@@ -8,7 +8,17 @@ export class BlockController {
 
   @Post('a')
   @Cron('0 * * * *')
-  async random() {
-    await this.blockService.generateRandomTransactions();
+  random() {
+    this.blockService.generateRandomTransactions();
+  }
+
+  @Post('test')
+  test() {
+    this.blockService.test();
+  }
+
+  @Post('test1')
+  test1() {
+    this.blockService.test1();
   }
 }
