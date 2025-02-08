@@ -18,4 +18,10 @@ export class UserService {
       await this.userRepository.save(User.of(address, privateKey));
     }
   }
+
+  async findUsers(formUserId: number, toUserId: number) {
+    const from = await this.userRepository.findById(formUserId);
+    const to = await this.userRepository.findById(toUserId);
+    return { from, to };
+  }
 }
