@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
-import { EqHubService } from '../../providers/web3/eqbr.service';
+import { EqHubService } from '../web3/eqbr.service';
 
 @Injectable()
 export class RabbitMQService {
@@ -10,34 +10,36 @@ export class RabbitMQService {
   ) {}
 
   @RabbitSubscribe({
-    exchange: 'test',
-    routingKey: 'test-rt',
-    queue: 'test',
+    exchange: 'bot',
+    routingKey: 'bot-coinTx',
+    queue: 'BotQ',
   })
-  public async publicHandler(msg: any) {
-    const { image } = msg;
-    await this.eqHubService.getTransactionReceipt(image);
-  }
-
-  @RabbitSubscribe({
-    exchange: 'test',
-    routingKey: 'test-rt1',
-    queue: 'test',
-  })
-  public async publicTokenHandler(msg: any) {
-    const { txHash } = msg;
+  public async subscribeCoinTransaction(msg: any) {
+    const { image: txHash } = msg;
     await this.eqHubService.getTransactionReceipt(txHash);
   }
 
-  publish(txHash: string) {
-    this.amqpConnection.publish('test', 'test-rt', {
+  publishCoin(txHash: string) {
+    this.amqpConnection.publish('bot', 'test-rt', {
       image: txHash,
     });
   }
 
-  async tokenPublish(txHash: string) {
-    await this.amqpConnection.publish('test', 'test-rt1', {
-      txHash: txHash,
-    });
-  }
+  // @RabbitSubscribe({
+  //   exchange: 'bot',
+  //   routingKey: 'bot-tokenTx',
+  //   queue: 'BotQ',
+  // })
+  // public async subscribeTokenTransaction(msg: any) {
+  //   const { txHash } = msg;
+  //   await this.eqHubService.getTransactionReceipt(txHash);
+  // }
+
+
+
+  // async tokenPublish(txHash: string) {
+  //   await this.amqpConnection.publish('test', 'test-rt1', {
+  //     txHash: txHash,
+  //   });
+  // }
 }

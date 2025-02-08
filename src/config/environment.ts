@@ -1,12 +1,19 @@
 import { IsIn, IsNumber, IsString, ValidateNested } from 'class-validator';
 import { plainToClass, Type } from 'class-transformer';
 import { DatabaseConfig } from './configs/database.config';
+import * as process from 'node:process';
 
 export class Environment {
   @IsString()
   EQHUB_KEY = process.env.EQHUB_KEY;
   @IsIn(['production', 'test', 'development'])
   NODE_ENV = process.env.NODE_ENV as 'production' | 'test' | 'development';
+
+  @IsString()
+  ACCOUNT_ID = process.env.ACCOUNT_ID;
+
+  @IsString()
+  META_ADDRESS = process.env.META_ADDRESS;
 
   @IsString()
   SERVICE_NAME = process.env.SERVICE_NAME;

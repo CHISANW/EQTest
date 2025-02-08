@@ -7,7 +7,6 @@ export class Web3Service {
   constructor(
     @Inject('WEB3') private readonly web3: any,
     private readonly userService: UserService,
-    private readonly eqbrService: EqHubService,
   ) {}
 
   async createAccounts() {
@@ -15,19 +14,7 @@ export class Web3Service {
     for (let i = 0; i < 10; i++) {
       accountList.push(this.web3.eth.accounts.create());
     }
-
     await this.userService.save(accountList);
-    console.log(accountList);
-  }
-
-  validAddress(key: string, address: string) {
-    if (this.web3.utils.isAddress(address)) {
-      console.log('올바른 주소');
-    } else console.log('올바르지 않은 주소');
-
-    const account = this.web3.eth.accounts.privateKeyToAccount(key);
-    const restoredAddress = account.address;
-    console.log(restoredAddress);
   }
 
   public async transaction(fromAddress, privateKey, toAddresss): Promise<any> {
