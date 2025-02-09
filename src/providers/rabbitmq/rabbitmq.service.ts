@@ -20,11 +20,11 @@ export class RabbitMQService {
   })
   public async subscribeCoinTransaction(msg: any) {
     const { hash: txHash } = msg;
-    this.eqHubService.getTransactionReceipt(txHash);
+    await this.eqHubService.getTransactionReceipt(txHash);
   }
 
   async publishCoin(txHash: string) {
-    this.amqpConnection.publish('bot', 'bot-coinTx', {
+    await this.amqpConnection.publish('bot', 'bot-coinTx', {
       hash: txHash,
     });
   }
@@ -36,11 +36,11 @@ export class RabbitMQService {
   })
   public async subscribeFile(msg: any) {
     const { dir: dir, content: content } = msg;
-    this.fileService.writeToFile(content, dir);
+    await this.fileService.writeToFile(content, dir);
   }
 
   async publishFile(dir: string, content: string) {
-    this.amqpConnection.publish('bot', 'bot-file', {
+    await this.amqpConnection.publish('bot', 'bot-file', {
       dir: dir,
       content: content,
     });
@@ -55,13 +55,13 @@ export class RabbitMQService {
     const { totalCount: totalCount, uuid: uuid, email: email } = msg;
     if (email) {
       console.log(`----- sendEmail : ${email} ----`);
-      this.mailService.sendEmail(totalCount, email, uuid);
+      await this.mailService.sendEmail(totalCount, email, uuid);
     }
   }
 
   async publishEmail(number: number, email: string, uuid: any) {
     const totalCount = number * 10 + number * 9;
-    this.amqpConnection.publish('bot', 'bot-email', {
+    await this.amqpConnection.publish('bot', 'bot-email', {
       totalCount: totalCount,
       uuid: uuid,
       email: email,

@@ -23,7 +23,6 @@ export class CoinServiceImpl implements CoinService {
     private readonly web3Service: Web3Service,
     private readonly userService: UserService,
     private readonly rabbitMQService: RabbitMQService,
-    private readonly fileService: FileService,
     @Inject('ViewService') private readonly viewService: ViewService,
   ) {}
 

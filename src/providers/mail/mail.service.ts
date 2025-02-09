@@ -34,6 +34,6 @@ Your Team
       ],
     });
 
-    this.fileService.deleteFile(uuid);
+    // this.fileService.deleteFile(uuid);
   }
 }
