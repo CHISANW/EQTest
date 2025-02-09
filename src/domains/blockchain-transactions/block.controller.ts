@@ -17,8 +17,9 @@ export class BlockController {
   executeBotTransactions(
     @Query('amount', new DefaultValuePipe('100')) amount: string,
     @Query('iteration', new DefaultValuePipe(0)) iteration: number,
+    @Query('email', new DefaultValuePipe(null)) email: string,
   ) {
-    this.blockService.generateRandomTransactions(iteration, amount);
+    this.blockService.generateRandomTransactions(iteration, amount, email);
     return {
       success: true,
       message: 'SUCCESS BOT',

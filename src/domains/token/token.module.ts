@@ -4,9 +4,10 @@ import { UserModule } from '../user/user.module';
 import { TokenServiceImpl } from './token.service';
 import { AxiosModule } from '../../providers/axios/axios.module';
 import { ViewModule } from '../../providers/view/view.module';
+import { RabbitExModule } from '../../providers/rabbitmq/rabbitmq.module';
 
 @Module({
-  imports: [Web3Module, UserModule, AxiosModule, ViewModule],
+  imports: [Web3Module, UserModule, AxiosModule, ViewModule, RabbitExModule],
   providers: [
     {
       provide: 'TokenService',

@@ -3,10 +3,14 @@ import { forwardRef, Module } from '@nestjs/common';
 import { RabbitMQService } from './rabbitmq.service';
 import { Web3Module } from '../web3/web3.module';
 import { BlockModule } from '../../domains/blockchain-transactions/block.module';
+import { FileModule } from '../../domains/file/file.module';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
     Web3Module,
+    FileModule,
+    MailModule,
     forwardRef(() => BlockModule),
     RabbitMQModule.forRoot({
       exchanges: [

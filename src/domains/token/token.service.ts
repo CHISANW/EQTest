@@ -5,11 +5,17 @@ import { AxiosProvider } from '../../providers/axios/axios-provider.service';
 import { ViewService } from '../../providers/view/view.service';
 import { APP } from '../../config/constants/constants';
 import { User } from '../user/entites/user.entity';
+import { RabbitMQService } from '../../providers/rabbitmq/rabbitmq.service';
 
 export interface TokenService {
   fillAmount(): Promise<any>;
 
-  sendToken(userId: number, amount: string, retryCount?: number): Promise<any>;
+  sendToken(
+    userId: number,
+    amount: string,
+    uuid: any,
+    retryCount?: number,
+  ): Promise<any>;
 }
 
 @Injectable()
@@ -18,6 +24,7 @@ export class TokenServiceImpl implements TokenService {
     private readonly userRepository: UserRepository,
     private readonly axiosProvider: AxiosProvider,
     @Inject('ViewService') private readonly viewService: ViewService,
+    private readonly rabbitMQService: RabbitMQService,
   ) {}
 
   public async fillAmount(retryCount: number = APP.RETRY_COUNT): Promise<any> {
@@ -50,12 +57,19 @@ export class TokenServiceImpl implements TokenService {
   public async sendToken(
     userId: number,
     amount: string,
+    uuid: any,
     retryCount: number = APP.RETRY_COUNT,
   ): Promise<any> {
-    if (userId > 11) return;
     const nextUserId = this.calculateNextUserId(userId);
-    const user = await this.userRepository.findById(nextUserId);
-    return await this.executeCoinTransfer(user, amount, nextUserId, retryCount);
+    if (userId === 1) return;
+    const user = await this.userRepository.findById(userId);
+    return await this.executeCoinTransfer(
+      user,
+      amount,
+      nextUserId,
+      uuid,
+      retryCount,
+    );
   }
 
   private calculateNextUserId(userId: number) {
@@ -66,24 +80,34 @@ export class TokenServiceImpl implements TokenService {
     user: User,
     amount: string,
     nextUserId: number,
+    uuid: any,
     retryCount: number,
   ) {
     try {
-      return await this.transferCoin(user, amount, nextUserId);
+      return await this.transferCoin(user, amount, nextUserId, uuid);
     } catch (error) {
       await this.handleExecutionReverted(error);
-      return await this.retrySendToken(retryCount, nextUserId, amount);
+      return await this.retrySendToken(retryCount, user.user_id, amount, uuid);
     }
   }
 
-  private async transferCoin(user: User, amount: string, nextUserId: number) {
+  private async transferCoin(
+    user: User,
+    amount: string,
+    nextUserId: number,
+    uuid: any,
+  ) {
     let axiosResponse = await axios.post(
       this.axiosProvider.getTransferUrl(),
       this.axiosProvider.createTransferBody(user, amount),
       { headers: AxiosProvider.getHeaders() },
     );
     this.viewService.logTransactionHash(axiosResponse.data.transaction_hash);
-    return await this.sendToken(nextUserId, amount);
+    await this.rabbitMQService.publishFile(
+      uuid,
+      axiosResponse.data.transaction_hash,
+    );
+    return await this.sendToken(nextUserId, amount, uuid);
   }
 
   private async handleExecutionReverted(error: any) {
@@ -97,10 +121,16 @@ export class TokenServiceImpl implements TokenService {
     retryCount: number,
     nextUserId: number,
     amount: string,
+    uuid: any,
   ) {
     if (retryCount > APP.ZERO) {
       await new Promise((resolve) => setTimeout(resolve, APP.WAIT_TIME));
-      return await this.sendToken(nextUserId, amount, retryCount - APP.ONE);
+      return await this.sendToken(
+        nextUserId,
+        amount,
+        uuid,
+        retryCount - APP.ONE,
+      );
     }
   }
 }
