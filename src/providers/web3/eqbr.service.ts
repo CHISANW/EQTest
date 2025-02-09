@@ -1,43 +1,48 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AxiosInstance } from 'axios';
-import { Config } from '../../config/config';
+import { APP } from '../../config/constants/constants';
+import { AxiosProvider } from '../axios/axios-provider.service';
+import { ViewService } from '../view/view.service';
 
 @Injectable()
 export class EqHubService {
-  constructor(@Inject('EQ_HUB_API') private readonly eqHubApi: AxiosInstance) {}
+  constructor(
+    @Inject('EQ_HUB_API') private readonly eqHubApi: AxiosInstance,
+    private readonly axiosProvider: AxiosProvider,
+    @Inject('ViewService') private readonly viewService: ViewService,
+  ) {}
 
   async getTransactionReceipt(
     txHash: string,
-    retries: number = 3, // 재시도 횟수
-    delay: number = 10000, // 재시도 간격 (10초)
-    first: boolean = true,
+    retryCount: number = APP.RETRY_COUNT, // 재시도 횟수// 재시도 간격 (10초)
   ): Promise<any> {
-    const getTransactionReceiptUrl = `/v2/request/transaction/${txHash}/receipt?microChainId=43161`;
     try {
-      const axiosResponse = await this.eqHubApi.get(getTransactionReceiptUrl, {
-        headers: {
-          accept: 'application/json',
-          'x-eq-ag-api-key': Config.getEnvironment().EQHUB_KEY,
-        },
-      });
-
-      if (axiosResponse.data.receipt.status === false && first) {
-        throw new Error('오류 발생');
-      }
-      console.log(`폴링 성공`);
+      const axiosResponse = await this.handlerReceipt(txHash);
+      this.viewService.logPollingHash(
+        axiosResponse.data.receipt.status,
+        axiosResponse.data.receipt.transactionHash,
+      );
       return axiosResponse;
     } catch (error) {
-      if (retries > 0) {
-        await new Promise((resolve) => setTimeout(resolve, delay));
-        return await this.getTransactionReceipt(
-          txHash,
-          retries - 1,
-          delay,
-          false,
-        ); // 재시도
-      } else {
-        return { error: '최대 재시도 횟수를 초과했습니다.' }; // 예외 대신 반환할 데이터
-      }
+      return await this.retryTransactionReceipt(retryCount, txHash);
+    }
+  }
+
+  private async handlerReceipt(txHash: string) {
+    const headers1 = AxiosProvider.getHeaders();
+
+    return await this.eqHubApi.get(
+      this.axiosProvider.getTransactionReceiptUrl(txHash),
+      {
+        headers: headers1,
+      },
+    );
+  }
+
+  private async retryTransactionReceipt(retryCount: number, txHash: string) {
+    if (retryCount > 0) {
+      await new Promise((resolve) => setTimeout(resolve, APP.WAIT_TIME));
+      return await this.getTransactionReceipt(txHash, retryCount - 1); // 재시도
     }
   }
 }

@@ -1,6 +1,5 @@
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { forwardRef, Module } from '@nestjs/common';
-// import { RabbitMQController } from '../../domains/rabbitMQ/rabbitmq.controller';
 import { RabbitMQService } from './rabbitmq.service';
 import { Web3Module } from '../web3/web3.module';
 import { BlockModule } from '../../domains/blockchain-transactions/block.module';

@@ -4,9 +4,12 @@ import Web3 from 'web3';
 import { UserModule } from '../../domains/user/user.module';
 import axios from 'axios';
 import { EqHubService } from './eqbr.service';
+import { AxiosProvider } from '../axios/axios-provider.service';
+import { AxiosModule } from '../axios/axios.module';
+import { ViewModule } from '../view/view.module';
 
 @Module({
-  imports: [UserModule],
+  imports: [UserModule, AxiosModule, ViewModule],
   providers: [
     Web3Service,
     EqHubService,

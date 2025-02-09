@@ -13,6 +13,9 @@ export class Environment {
   ACCOUNT_ID = process.env.ACCOUNT_ID;
 
   @IsString()
+  EQ_API = process.env.EQ_ENDPOINT;
+
+  @IsString()
   META_ADDRESS = process.env.META_ADDRESS;
 
   @IsString()

@@ -15,31 +15,13 @@ export class RabbitMQService {
     queue: 'BotQ',
   })
   public async subscribeCoinTransaction(msg: any) {
-    const { image: txHash } = msg;
+    const { hash: txHash } = msg;
     await this.eqHubService.getTransactionReceipt(txHash);
   }
 
   publishCoin(txHash: string) {
-    this.amqpConnection.publish('bot', 'test-rt', {
-      image: txHash,
+    this.amqpConnection.publish('bot', 'bot-coinTx', {
+      hash: txHash,
     });
   }
-
-  // @RabbitSubscribe({
-  //   exchange: 'bot',
-  //   routingKey: 'bot-tokenTx',
-  //   queue: 'BotQ',
-  // })
-  // public async subscribeTokenTransaction(msg: any) {
-  //   const { txHash } = msg;
-  //   await this.eqHubService.getTransactionReceipt(txHash);
-  // }
-
-
-
-  // async tokenPublish(txHash: string) {
-  //   await this.amqpConnection.publish('test', 'test-rt1', {
-  //     txHash: txHash,
-  //   });
-  // }
 }

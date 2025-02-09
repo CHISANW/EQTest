@@ -1,13 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { EqHubService } from '../../providers/web3/eqbr.service';
 import { UserRepository } from '../user/repositories/user.repository';
 import axios from 'axios';
-import { User } from '../user/entites/user.entity';
 import { AxiosProvider } from '../../providers/axios/axios-provider.service';
-import {
-  ViewService,
-  ViewServiceImpl,
-} from '../../providers/view/view.service';
+import { ViewService } from '../../providers/view/view.service';
+import { APP } from '../../config/constants/constants';
+import { User } from '../user/entites/user.entity';
 
 export interface TokenService {
   fillAmount(): Promise<any>;
@@ -23,50 +20,87 @@ export class TokenServiceImpl implements TokenService {
     @Inject('ViewService') private readonly viewService: ViewService,
   ) {}
 
-  async fillAmount(retryCount: number = 5): Promise<any> {
+  public async fillAmount(retryCount: number = APP.RETRY_COUNT): Promise<any> {
+    return await this.executeFillAmount(retryCount);
+  }
+
+  private async executeFillAmount(retryCount: number) {
     try {
-      const response = await axios.post(
-        this.axiosProvider.getFillAmountUrl(),
-        this.axiosProvider.createFillBody(),
-        { headers: AxiosProvider.getHeaders() },
-      );
-      return response.data.transaction_hash;
+      return await this.sendFillAmountRequest();
     } catch (error) {
-      if (retryCount > 0) {
-        await this.fillAmount(retryCount - 1);
-      }
+      return await this.retryFillAmount(retryCount);
     }
   }
 
-  async sendToken(
+  private async sendFillAmountRequest() {
+    const response = await axios.post(
+      this.axiosProvider.getFillAmountUrl(),
+      this.axiosProvider.createFillBody(),
+      { headers: AxiosProvider.getHeaders() },
+    );
+    return response.data.transaction_hash;
+  }
+
+  private async retryFillAmount(retryCount: number) {
+    if (retryCount > APP.ZERO) {
+      return await this.fillAmount(retryCount - APP.ONE);
+    }
+  }
+
+  public async sendToken(
     userId: number,
     amount: string,
-    retryCount: number = 3,
+    retryCount: number = APP.RETRY_COUNT,
   ): Promise<any> {
-    if (userId > 11) {
-      return;
-    }
-
-    const nextUserId = userId === 10 ? 1 : userId + 1;
+    if (userId > 11) return;
+    const nextUserId = this.calculateNextUserId(userId);
     const user = await this.userRepository.findById(nextUserId);
+    return await this.executeCoinTransfer(user, amount, nextUserId, retryCount);
+  }
 
+  private calculateNextUserId(userId: number) {
+    return userId === APP.LAST_USER_ID ? APP.ONE : userId + APP.ONE;
+  }
+
+  private async executeCoinTransfer(
+    user: User,
+    amount: string,
+    nextUserId: number,
+    retryCount: number,
+  ) {
     try {
-      let axiosResponse = await axios.post(
-        this.axiosProvider.getTransferUrl(),
-        this.axiosProvider.createTransferBody(user, amount),
-        { headers: AxiosProvider.getHeaders() },
-      );
-      console.log('코인 해쉬값 : ', axiosResponse.data.transaction_hash);
-      return await this.sendToken(nextUserId, amount);
+      return await this.transferCoin(user, amount, nextUserId);
     } catch (error) {
-      if (error.response.data.error.message === 'execution reverted') {
-        const hash = await this.fillAmount();
-        this.viewService.rechargeToken(hash);
-      }
-      if (retryCount > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 10000));
-        return await this.sendToken(nextUserId, amount, retryCount - 1);
-      }
+      await this.handleExecutionReverted(error);
+      return await this.retrySendToken(retryCount, nextUserId, amount);
+    }
+  }
+
+  private async transferCoin(user: User, amount: string, nextUserId: number) {
+    let axiosResponse = await axios.post(
+      this.axiosProvider.getTransferUrl(),
+      this.axiosProvider.createTransferBody(user, amount),
+      { headers: AxiosProvider.getHeaders() },
+    );
+    this.viewService.logTransactionHash(axiosResponse.data.transaction_hash);
+    return await this.sendToken(nextUserId, amount);
+  }
+
+  private async handleExecutionReverted(error: any) {
+    if (error.response.data.error.message === APP.EXECUTION_ERROR) {
+      const hash = await this.fillAmount();
+      this.viewService.rechargeToken(hash);
+    }
+  }
+
+  private async retrySendToken(
+    retryCount: number,
+    nextUserId: number,
+    amount: string,
+  ) {
+    if (retryCount > APP.ZERO) {
+      await new Promise((resolve) => setTimeout(resolve, APP.WAIT_TIME));
+      return await this.sendToken(nextUserId, amount, retryCount - APP.ONE);
     }
   }
 }

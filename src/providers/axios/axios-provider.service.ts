@@ -12,11 +12,15 @@ export class AxiosProvider {
   }
 
   getTransferUrl() {
-    return `https://ag.eqhub.eqbr.com/api/v1/token-kits/kits/13/transfers/transfer?accountId=${Config.getEnvironment().ACCOUNT_ID}`;
+    return `${Config.getEnvironment().EQ_API}/v1/token-kits/kits/13/transfers/transfer?accountId=${Config.getEnvironment().ACCOUNT_ID}`;
   }
 
   getFillAmountUrl() {
-    return `https://ag.eqhub.eqbr.com/api/v1/token-kits/kits/13/issuances/issue?accountId=${Config.getEnvironment().ACCOUNT_ID}`;
+    return `${Config.getEnvironment().EQ_API}/v1/token-kits/kits/13/issuances/issue?accountId=${Config.getEnvironment().ACCOUNT_ID}`;
+  }
+
+  getTransactionReceiptUrl(hash: string) {
+    return `/v2/request/transaction/${hash}/receipt?microChainId=43161`;
   }
 
   createTransferBody(user: User, amount: string) {
