@@ -5,11 +5,10 @@ export interface ViewService {
   printCoinTransactionLog(transaction: string): void;
   rechargeToken(txHash: string): void;
   logTransactionHash(txHash: string): void;
-  logPollingHash(status: boolean, txHash: string): void;
+  logPollingHash(txHash: string): void;
 }
 
 import { Injectable } from '@nestjs/common';
-import { User } from '../../domains/user/entites/user.entity';
 
 @Injectable()
 export class ViewServiceImpl implements ViewService {
@@ -35,7 +34,7 @@ export class ViewServiceImpl implements ViewService {
     console.log(`🔥 [토큰 전송] 트랜잭션 해시: ${txHash}`);
   }
 
-  logPollingHash(status: boolean, txHash: string): void {
+  logPollingHash(txHash: string): void {
     console.log(`🔥 [코인 폴링] 트랜잭션 해시 : ${txHash}`);
   }
 }

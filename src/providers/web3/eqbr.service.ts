@@ -14,12 +14,11 @@ export class EqHubService {
 
   async getTransactionReceipt(
     txHash: string,
-    retryCount: number = APP.RETRY_COUNT, // 재시도 횟수// 재시도 간격 (10초)
+    retryCount: number = APP.RETRY_COUNT,
   ): Promise<any> {
     try {
       const axiosResponse = await this.handlerReceipt(txHash);
       this.viewService.logPollingHash(
-        axiosResponse.data.receipt.status,
         axiosResponse.data.receipt.transactionHash,
       );
       return axiosResponse;
@@ -29,12 +28,12 @@ export class EqHubService {
   }
 
   private async handlerReceipt(txHash: string) {
-    const headers1 = AxiosProvider.getHeaders();
+    const headers = AxiosProvider.getHeaders();
 
     return await this.eqHubApi.get(
       this.axiosProvider.getTransactionReceiptUrl(txHash),
       {
-        headers: headers1,
+        headers: headers,
       },
     );
   }
