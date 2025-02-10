@@ -1,10 +1,4 @@
-import {
-  Controller,
-  DefaultValuePipe,
-  Param,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Controller, DefaultValuePipe, Param, Post, Query } from '@nestjs/common';
 import { BlockService } from './block.service';
 import { Cron } from '@nestjs/schedule';
 
@@ -19,10 +13,7 @@ export class BlockController {
     @Query('iteration', new DefaultValuePipe(0)) iteration: number,
     @Query('email', new DefaultValuePipe(null)) email: string,
   ) {
-    this.blockService.generateRandomTransactions(iteration, amount, email);
-    return {
-      success: true,
-      message: 'SUCCESS BOT',
-    };
+    // this.blockService.generateRandomTransactions(iteration, amount, email);
+    return 'SUCCESS BOT';
   }
 }
