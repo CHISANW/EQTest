@@ -13,7 +13,7 @@ export class BlockController {
     @Query('iteration', new DefaultValuePipe(0)) iteration: number,
     @Query('email', new DefaultValuePipe(null)) email: string,
   ) {
-    // this.blockService.generateRandomTransactions(iteration, amount, email);
+    this.blockService.generateRandomTransactions(iteration, amount, email);
     return 'SUCCESS BOT';
   }
 }
