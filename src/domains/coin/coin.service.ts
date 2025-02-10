@@ -46,7 +46,7 @@ export class CoinServiceImpl implements CoinService {
   }
 
   private async retrySendCoin(user: any, index: number, retry: number, uuid: any) {
-    await new Promise((resolve) => setTimeout(resolve, APP.WAIT_TIME));
+    new Promise((resolve) => setTimeout(resolve, APP.WAIT_TIME));
     return await this.sendCoin(user, index, uuid, retry);
   }
 }

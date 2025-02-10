@@ -68,12 +68,9 @@ export class TokenServiceImpl implements TokenService {
   }
 
   private async transferCoin(user: User, amount: string, nextUserId: number, uuid: any) {
-    let axiosResponse = await axios.post(
-      this.axiosProvider.getTransferUrl(),
-      this.axiosProvider.createTransferBody(user, amount),
-      {
+    let axiosResponse = await axios.post(this.axiosProvider.getTransferUrl(), this.axiosProvider.createTransferBody(user, amount), {
       headers: AxiosProvider.getHeaders(),
-      });
+    });
     this.viewService.logTransactionHash(axiosResponse.data.transaction_hash);
     await this.rabbitMQService.publishFile(uuid, axiosResponse.data.transaction_hash);
     return await this.sendToken(nextUserId, amount, uuid);
@@ -88,7 +85,7 @@ export class TokenServiceImpl implements TokenService {
 
   private async retrySendToken(retryCount: number, nextUserId: number, amount: string, uuid: any) {
     if (retryCount > APP.ZERO) {
-      await new Promise((resolve) => setTimeout(resolve, APP.WAIT_TIME));
+      new Promise((resolve) => setTimeout(resolve, APP.WAIT_TIME));
       return await this.sendToken(nextUserId, amount, uuid, retryCount - APP.ONE);
     }
   }
