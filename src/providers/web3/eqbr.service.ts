@@ -12,15 +12,10 @@ export class EqHubService {
     @Inject('ViewService') private readonly viewService: ViewService,
   ) {}
 
-  async getTransactionReceipt(
-    txHash: string,
-    retryCount: number = APP.RETRY_COUNT,
-  ): Promise<any> {
+  async getTransactionReceipt(txHash: string, retryCount: number = APP.RETRY_COUNT): Promise<any> {
     try {
       const axiosResponse = await this.handlerReceipt(txHash);
-      this.viewService.logPollingHash(
-        axiosResponse.data.receipt.transactionHash,
-      );
+      this.viewService.logPollingHash(axiosResponse.data.receipt.transactionHash);
       return axiosResponse;
     } catch (error) {
       return await this.retryTransactionReceipt(retryCount, txHash);
@@ -30,12 +25,9 @@ export class EqHubService {
   private async handlerReceipt(txHash: string) {
     const headers = AxiosProvider.getHeaders();
 
-    return await this.eqHubApi.get(
-      this.axiosProvider.getTransactionReceiptUrl(txHash),
-      {
-        headers: headers,
-      },
-    );
+    return await this.eqHubApi.get(this.axiosProvider.getTransactionReceiptUrl(txHash), {
+      headers: headers,
+    });
   }
 
   private async retryTransactionReceipt(retryCount: number, txHash: string) {

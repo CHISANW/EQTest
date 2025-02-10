@@ -16,20 +16,12 @@ export class BlockService {
     @Inject('CoinService') private readonly coinService: CoinService,
   ) {}
 
-  async generateRandomTransactions(
-    iteration: number,
-    amount: string,
-    email: string,
-  ) {
+  async generateRandomTransactions(iteration: number, amount: string, email: string) {
     let number = this.viewService.printTransactionSummary(iteration);
     await this.executeTransactions(number, amount, email);
   }
 
-  private async executeTransactions(
-    number: number,
-    amount: string,
-    email: string,
-  ) {
+  private async executeTransactions(number: number, amount: string, email: string) {
     let index = 1;
     const randomUUID = uuidv4();
     await Promise.all(

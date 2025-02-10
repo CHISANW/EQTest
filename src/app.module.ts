@@ -7,7 +7,6 @@ import { RabbitExModule } from './providers/rabbitmq/rabbitmq.module';
 import { TokenModule } from './domains/token/token.module';
 import { ViewModule } from './providers/view/view.module';
 import { CoinModule } from './domains/coin/coin.module';
-import { AxiosProvider } from './providers/axios/axios-provider.service';
 import { AxiosModule } from './providers/axios/axios.module';
 import { FileModule } from './domains/file/file.module';
 import { MailModule } from './providers/mail/mail.module';

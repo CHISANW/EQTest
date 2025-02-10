@@ -20,6 +20,7 @@ export class ViewServiceImpl implements ViewService {
     console.log(`최초 실행 일 : ${formattedTime} ,총 실행 횟수 ${count}`);
     return iterationCount;
   }
+
   printCoinTransactionLog(transaction: string): void {
     console.log(`🔥 [코인 전송] 트랜잭션 해시: ${transaction}`);
   }

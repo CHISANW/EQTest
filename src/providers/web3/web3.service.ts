@@ -26,14 +26,8 @@ export class Web3Service {
     return (await this.sendTransaction(signedTx)).transactionHash;
   }
 
-  private async createTransaction(
-    senderAddress: string,
-    receiverAddress: string,
-  ) {
-    const nonce = await this.web3.eth.getTransactionCount(
-      senderAddress,
-      'latest',
-    );
+  private async createTransaction(senderAddress: string, receiverAddress: string) {
+    const nonce = await this.web3.eth.getTransactionCount(senderAddress, 'latest');
     return {
       from: senderAddress,
       to: receiverAddress,
@@ -44,10 +38,7 @@ export class Web3Service {
     };
   }
 
-  private async signTransaction(
-    txObject: any,
-    privateKey: string,
-  ): Promise<any> {
+  private async signTransaction(txObject: any, privateKey: string): Promise<any> {
     return await this.web3.eth.accounts.signTransaction(txObject, privateKey);
   }
 
