@@ -10,7 +10,8 @@ export class MailService {
     private readonly fileService: FileService,
   ) {}
 
-  async sendEmail(totalCount: number, email: string, uuid: any) {
+  async sendEmail(email: string, uuid: any) {
+    const lineCount = await this.fileService.getLineCount(uuid);
     await this.mailerService.sendMail({
       to: email,
       subject: `[Notification] Blockchain Transaction Processed`,
@@ -18,7 +19,7 @@ export class MailService {
 
 Your requested blockchain transaction has been successfully processed.
 
-🔹Total Transaction Count : ${totalCount}
+🔹Total Transaction Count : ${lineCount};
 🔹View on Explorer : https://field.eqhub.eqbr.com/43161 (EQBR MainNet)
 
 For more details, please check the attached file (${uuid}.txt).

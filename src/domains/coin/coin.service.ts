@@ -5,8 +5,6 @@ import { UserService } from '../user/user.service';
 import { RabbitMQService } from '../../providers/rabbitmq/rabbitmq.service';
 import { ViewService } from '../../providers/view/view.service';
 import { APP } from '../../config/constants/constants';
-import { FileService } from '../file/file.service';
-
 export interface CoinService {
   sendCoin(
     user: any,
@@ -68,13 +66,7 @@ export class CoinServiceImpl implements CoinService {
       .then(async (transaction) => {
         await this.rabbitMQService.publishCoin(transaction);
         await this.rabbitMQService.publishFile(uuid, transaction);
-        this.viewService.printCoinTransactionLog(
-          from,
-          to,
-          index,
-          type,
-          transaction,
-        );
+        this.viewService.printCoinTransactionLog(transaction);
         return transaction;
       });
   }

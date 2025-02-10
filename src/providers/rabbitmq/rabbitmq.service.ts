@@ -52,17 +52,15 @@ export class RabbitMQService {
     queue: 'BotQ-email',
   })
   public async subscribeEmail(msg: any) {
-    const { totalCount: totalCount, uuid: uuid, email: email } = msg;
+    const { uuid: uuid, email: email } = msg;
     if (email) {
       console.log(`----- sendEmail : ${email} ----`);
-      await this.mailService.sendEmail(totalCount, email, uuid);
+      await this.mailService.sendEmail(email, uuid);
     }
   }
 
-  async publishEmail(number: number, email: string, uuid: any) {
-    const totalCount = number * 10 + number * 9;
+  async publishEmail(email: string, uuid: any) {
     await this.amqpConnection.publish('bot', 'bot-email', {
-      totalCount: totalCount,
       uuid: uuid,
       email: email,
     });

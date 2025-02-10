@@ -33,7 +33,7 @@ export class BlockService {
     let index = 1;
     const randomUUID = uuidv4();
     await Promise.all(
-      Array.from({ length: 3 }).map(async (_, i) => {
+      Array.from({ length: number }).map(async (_, i) => {
         const user = await this.userService.findUsers(1, 2);
         const [newIndex] = await Promise.all([
           this.coinService.sendCoin(user, index, i, randomUUID),
@@ -44,7 +44,7 @@ export class BlockService {
     );
 
     if (email) {
-      this.rabbitMQService.publishEmail(number, email, randomUUID);
+      this.rabbitMQService.publishEmail(email, randomUUID);
     }
   }
 }

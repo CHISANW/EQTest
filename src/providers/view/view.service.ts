@@ -2,13 +2,7 @@ import { format } from 'date-fns';
 
 export interface ViewService {
   printTransactionSummary(iteration: number): number;
-  printCoinTransactionLog(
-    from: User,
-    to: User,
-    index: number,
-    type: number,
-    transaction: string,
-  ): void;
+  printCoinTransactionLog(transaction: string): void;
   rechargeToken(txHash: string): void;
   logTransactionHash(txHash: string): void;
   logPollingHash(status: boolean, txHash: string): void;
@@ -27,26 +21,7 @@ export class ViewServiceImpl implements ViewService {
     console.log(`최초 실행 일 : ${formattedTime} ,총 실행 횟수 ${count}`);
     return iterationCount;
   }
-  printCoinTransactionLog(
-    from: User,
-    to: User,
-    index: number,
-    type: number,
-    transaction: string,
-  ): void {
-    const formattedTime = format(new Date(), 'yyyy-MM-dd HH:mm');
-    //     console.log(`
-    //     🔥[코인 전송]
-    //   ========================================================================================
-    //   |           Transaction triggered ${index}                                                      |
-    //   ========================================================================================
-    //   | Run Time        : ${formattedTime}                                                   |
-    //   | User            : ${from.user_id}                                                  |
-    //   | Amount Sent     : ${to.user_id}                                                  |
-    //   | Amount type     : ${type}                                                  |
-    //   | Transaction Hash: ${transaction} |
-    //   ========================================================================================
-    // `);
+  printCoinTransactionLog(transaction: string): void {
     console.log(`🔥 [코인 전송] 트랜잭션 해시: ${transaction}`);
   }
 
